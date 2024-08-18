@@ -21,6 +21,7 @@ function openTab(event,tabName){
             fetchAndDisplay('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=1&sparkline=true', ['asset-list'], displayAssets,
             tabName, 'Crypto_Data');
             break;
+            
         case 'tab2':
             fetchAndDisplay('https://api.coingecko.com/api/v3/exchanges', ['exchange-list'], displayExchanges, tabName, 'Exchanges_Data');
             break;
@@ -28,7 +29,7 @@ function openTab(event,tabName){
             fetchAndDisplay('https://api.coingecko.com/api/v3/coins/categories', ['category-list'], displayCategories, tabName, 'Categories_Data');
             break;
         case 'tab4' :
-            fetchAndDisplay('https://api.coingecko.com/api/v3/companies/public_treasury/bitcoin', [company-list], displayCompanies, tabName, 'Companies_Data');
+            fetchAndDisplay('https://api.coingecko.com/api/v3/companies/public_treasury/bitcoin', ['company-list'], displayCompanies, tabName, 'Companies_Data');
             break;
         }
     }
@@ -60,39 +61,41 @@ async function fetchAndDisplay(url, idsToToggle, displayFunction, tabName = null
     const localStorageKey = localKey;
     const localData = getLocalStorageData(localStorageKey);
 
-    if(localData){
+    if (localData) {
         idsToToggle.forEach(id => toggleSpinner(id, `${id}-spinner`, false));
         displayFunction(localData);
-        if(tabName){
+        if (tabName) {
             tabDataLoaded[tabName] = true;
-        }else{
-            try{
-                const response = await fetch(url);
-                if(!response.ok) throw new Error('API limit reached');
-                const data = await response.json();
-                idsToToggle.forEach(id => toggleSpinner(id, `${id}-spinner`, false));
-                displayFunction(data);
-                setLocalStorageData(localStorageKey, data);
-                if(tabName){
-                    tabDataLoaded[tabName] = true;
-                }
-            } catch (error){
-                idsToToggle.forEach(id => {
-                    toggleSpinner(id, `${id}-spinner`, false);
-                    document.getElementById('${id}-error').style.display = 'block';
-                });
-                if(tabName){
-                    tabDataLoaded[tabName] = false;
-                }
+        }
+    } else {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('API limit reached');
+            const data = await response.json();
+            console.log(data);
+            idsToToggle.forEach(id => toggleSpinner(id, `${id}-spinner`, false));
+            displayFunction(data);
+            setLocalStorageData(localStorageKey, data);
+            if (tabName) {
+                tabDataLoaded[tabName] = true;
+            }
+        } catch (error) {
+            idsToToggle.forEach(id => {
+                toggleSpinner(id, `${id}-spinner`, false);
+                document.getElementById(`${id}-error`).style.display = 'block';
+            });
+            if (tabName) {
+                tabDataLoaded[tabName] = false;
             }
         }
     }
+    
 }
 
 function displayTrends(data){
     //5 tane göstereceğiz sadece
     displayTrendCoins(data.coins.slice(0, 5));
-    displayTrendNfts(data.Nfts.slice(0, 5));
+    displayTrendNfts(data.nfts.slice(0, 5));
 }
 
 function displayTrendCoins(coins){

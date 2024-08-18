@@ -85,7 +85,7 @@ function displayGlobalData(globalData) {
 
 function toggleSpinner(listId, spinnerId, show){
     const listElement = document.getElementById(listId);
-    const SpinnerElement = document.getElementById(spinnerId);
+    const spinnerElement = document.getElementById(spinnerId);
 
     if(spinnerElement){
         spinnerElement.style.display = show ? 'block' : 'none';
